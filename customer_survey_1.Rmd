@@ -7,24 +7,41 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
 ```
 
-## R Markdown
+This markdown will combine the two customer surveys and compare existing customer answers with new customer answers. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+#load in the customer data
+new_customers <- read_csv("new_customer_survey1.csv")
+old_customers <- read_csv("existing_customer_survey1.csv")
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#add new identifer column to both dataframes before combining
+new_customer_id <- new_customers %>%
+  mutate(id = "new")
 
-```{r cars}
-summary(cars)
+old_customer_id <- old_customers %>%
+  mutate(id = "old") %>%
+  select(-X46)
+
+#combine the dfs
+all_customers <- bind_rows(new_customer_id, old_customer_id) %>%
+  select(-feedback, -name) #get rid of columns w NAs (feedback and names), we don't care
+
+
+
+
+
+#visualize known_csf answer
+csf <- ggplot(all_customers, aes(x = known_csf, fill = id)) +
+  geom_bar(position = "dodge")
+
+
+csf
+
+
+
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
