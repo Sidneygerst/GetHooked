@@ -5,8 +5,10 @@ date: "April 29, 2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
 
 library(tidyverse)
 ```
@@ -14,6 +16,7 @@ library(tidyverse)
 This markdown will combine the two customer surveys and compare existing customer answers with new customer answers. 
 
 ```{r}
+
 #load in the customer data
 new_customers <- read_csv("new_customer_survey1.csv")
 old_customers <- read_csv("existing_customer_survey1.csv")
@@ -23,25 +26,50 @@ new_customer_id <- new_customers %>%
   mutate(id = "new")
 
 old_customer_id <- old_customers %>%
-  mutate(id = "old") %>%
+  mutate(id = "existing") %>%
   select(-X46)
 
 #combine the dfs
 all_customers <- bind_rows(new_customer_id, old_customer_id) %>%
   select(-feedback, -name) #get rid of columns w NAs (feedback and names), we don't care
 
+```
+
+```{r}
+
+# Visualize known csf
+
+total_survey_counts <- all_customers %>% 
+  select(id) %>%
+  group_by(id) %>% 
+  summarize(total = length(id)) # total number of surveys for existing and new
+
+csf_known_df <- all_customers %>% 
+  select(known_csf, id) %>% 
+  group_by(known_csf, id) %>% 
+  summarize(count = length(known_csf)) # number who responded yes/no in existing and new
+
+proportion_csf <- csf_known_df %>% 
+  left_join(total_survey_counts, csf_known_df, by = "id") %>% 
+  mutate(proportion = count/total)
+
+csf_bar <- ggplot(proportion_csf, aes(x = id, y = proportion, fill = known_csf)) + 
+  geom_bar(stat = "identity", position = "dodge") + # stat = "identity" to have bars represent values in the data. Otherwise default is counts in the column
+  labs(x = "Group" , y = "Proportion") +
+  scale_x_discrete(labels = c("New", "Existing")) +
+  scale_y_continuous(expand = c(0,0)) + # get rid of space between x-axis and plot
+  theme_classic()
+
+csf_bar
 
 
+csf_bar2 <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CSF Knowledge", y = "Proportion") +
+  scale_y_continuous(expand = c(0,0)) +
+  theme_classic()
 
-
-#visualize known_csf answer
-csf <- ggplot(all_customers, aes(x = known_csf, fill = id)) +
-  geom_bar(position = "dodge")
-
-
-csf
-
-
+csf_bar2
 
 ```
 
