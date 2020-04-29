@@ -1,0 +1,46 @@
+code,question
+Timestamp,Timestamp
+delivery_count,How many deliveries have you received since becoming a member with Get Hooked?
+share_size,Your current share size is:
+delivery_method,How do you currently receive your Get Hooked shares?
+known_csf,Did you know that Get Hooked is a Community Supported Fishery (CSF)?
+csf_impact,"Our CSF buys a “share” of the season’s catch from local fishermen each week on your behalf. Giving you only the highest quality, freshest catch requires waiting to announce your seafood selection until after we have prepped and inspected the seafood, just a day prior to delivery. How does this last-minute timing impact your experience with getting fresh seafood weekly?"
+grocery_influence,How have recent changes to grocery access influenced your decision to join or continue with Get Hooked?
+necessary_grocery,Do you considered Get Hooked a core/necessary part of your weekly grocery supply?
+grocery_budget,How has the proportion of your budget dedicated to groceries and home cooking changed in the past month?
+covid_end,"When the COVID-19 pandemic has passed, how likely are you to continue your Get Hooked membership?"
+found_out,How did you hear about Get Hooked? (Select all that apply)
+primary_motivations,What are your primary motivations for buying seafood through Get Hooked? (Select 1-3)
+seafood_quality,How satisfied are you with .... [quality of fresh seafood?]
+frozen_seafood,How satisfied are you with .... [quality of frozen seafood?]
+seafood_types,How satisfied are you with .... [variety of seafood types?]
+pickup_experience,How satisfied are you with .... [pick-up experience?]
+pick_location,How satisfied are you with .... [pick-up location?]
+customer_service,How satisfied are you with .... [customer service?]
+recipes,How satisfied are you with .... [recipes?]
+home_delivery,How satisfied are you with .... [home delivery experience?]
+special_order,How satisfied are you with .... [special order form experience?]
+website_experience,How satisfied are you with .... [website experience?]
+cooking_seafood,"In joining Get Hooked, I have found that cooking new types of seafood at home has been: [.]"
+economic_health,How important is it to you that your Get Hooked subscription: [supports the health of local economies?]
+fisher_livelihood,How important is it to you that your Get Hooked subscription: [supports the livelihoods of local fishermen?]
+ocean_health,How important is it to you that your Get Hooked subscription: [supports the health of our local ocean?]
+less_waste,How important is it to you that your Get Hooked subscription: [creates less waste in the seafood supply chain?]
+fisher_access,How important is it to you that your Get Hooked subscription: [offers transparency from the fisherman to you?]
+species_education,How important is it to you that your Get Hooked subscription: [provide education on species sustainability and fishing gear/method used?]
+member_events,How important is it to you that your Get Hooked subscription: [hosts member-only events with fellow members and/or fishermen?]
+nonseafood_addons,"How important is it to you that your Get Hooked subscription: [offers non-seafood grocery add-ons like bread, meat, etc.]"
+ocean_connection,How has being a member of Get Hooked affected your: [connection to the ocean?]
+community_connection,How has being a member of Get Hooked affected your: [experience of community?]
+fisher_connection,How has being a member of Get Hooked affected your: [connection with fishermen?]
+affected_health,How has being a member of Get Hooked affected your: [personal health and well being?]
+fair_price,Do you feel you pay a fair price for your seafood subscription? [.]
+recommend,How likely are you to recommend Get Hooked to your friends and family?  [.]
+other_csf,Do you currently subscribe to one or more other CSA's or other local food delivery programs?
+feedback,Do you have any additional comments or feedback for us?
+gender,Do you identify as:
+age,Age [.]
+household_number,Number of people living in your household [.]
+grocery_expenditure ,What do you typically spend on groceries for the household per week?  [.]
+income,Annual household income [.]
+name,Name
