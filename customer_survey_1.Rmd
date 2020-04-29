@@ -38,7 +38,6 @@ all_customers <- bind_rows(new_customer_id, old_customer_id) %>%
 ```{r}
 
 # Visualize known csf
-
 total_survey_counts <- all_customers %>% 
   select(id) %>%
   group_by(id) %>% 
@@ -50,7 +49,7 @@ csf_known_df <- all_customers %>%
   summarize(count = length(known_csf)) # number who responded yes/no in existing and new
 
 proportion_csf <- csf_known_df %>% 
-  left_join(total_survey_counts, csf_known_df, by = "id") %>% 
+  left_join(total_survey_counts, by = "id") %>% 
   mutate(proportion = count/total)
 
 csf_bar <- ggplot(proportion_csf, aes(x = id, y = proportion, fill = known_csf)) + 
@@ -70,6 +69,52 @@ csf_bar2 <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)
   theme_classic()
 
 csf_bar2
+
+```
+
+```{r}
+
+# Explore necessity between existing and new
+necessary_df <- all_customers %>% 
+  select(necessary_grocery, id) %>% 
+  group_by(necessary_grocery, id) %>% 
+  summarize(count = length(necessary_grocery)) # number who responded yes/sometimes/no in existing and new
+
+proportion_necessary <- necessary_df %>% 
+  left_join(total_survey_counts, by = "id") %>% 
+  mutate(proportion = count/total)
+
+
+necessary_bar <- ggplot(proportion_necessary, aes(x = necessary_grocery, y = proportion, fill = id)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Necessity", y = "Proportion") +
+  scale_y_continuous(expand = c(0,0)) +
+  theme_classic()
+
+necessary_bar
+
+
+
+# Explore necessity broken down by delivery counts
+necessary_delivery_df <- all_customers %>% 
+  select(necessary_grocery, delivery_count) %>% 
+  group_by(necessary_grocery, delivery_count) %>% 
+  summarize(necessary = length(necessary_grocery)) # number of people who said yes/sometimes/no based on the # of deliveries they have received
+
+proportion_necessary_delivery <- necessary_delivery_df %>% 
+  mutate(proportion = necessary/324) # Divide by total # of surveys
+
+necessary_delivery_bar <- ggplot(proportion_necessary_delivery, aes (x = delivery_count, y = proportion, fill = necessary_grocery)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = c(0,0)) +
+  theme_classic()
+  
+
+necessary_delivery_bar
+
+
+
+
 
 ```
 
