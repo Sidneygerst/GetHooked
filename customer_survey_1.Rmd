@@ -3,6 +3,8 @@ title: "Customer Survey 1"
 author: "Sidney Gerst, Corinna Hong"
 date: "April 29, 2020"
 output: html_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include = FALSE}
@@ -90,6 +92,7 @@ proportion_necessary <- necessary_df %>%
 
 necessary_bar <- ggplot(proportion_necessary, aes(x = necessary_grocery, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_discrete(name = "Customer Group", labels = c("Existing", "New")) +
   labs(x = "Necessity", y = "Proportion") +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
@@ -108,7 +111,6 @@ necessary_delivery_df <- all_customers %>%
 proportion_necessary_delivery <- necessary_delivery_df %>% 
   mutate(proportion = necessary/324) # Divide by total # of surveys
 
-tips2$day <- factor(tips2$day,levels = c("Fri", "Sat", "Sun", "Thur"))
 
 necessary_delivery_bar <- ggplot(proportion_necessary_delivery, aes (x = delivery_count, y = proportion, fill = necessary_grocery)) +
   geom_bar(stat = "identity", position = "dodge") +
