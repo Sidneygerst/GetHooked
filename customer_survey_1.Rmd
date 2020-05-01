@@ -55,16 +55,19 @@ proportion_csf <- csf_known_df %>%
 csf_bar <- ggplot(proportion_csf, aes(x = id, y = proportion, fill = known_csf)) + 
   geom_bar(stat = "identity", position = "dodge") + # stat = "identity" to have bars represent values in the data. Otherwise default is counts in the column
   labs(x = "Group" , y = "Proportion") +
-  scale_x_discrete(labels = c("New", "Existing")) +
+  scale_x_discrete(labels = c("New", "Existing")) + # Change x-axis labels
+  scale_fill_discrete(name = "Customer Group", labels = c("Existing", "New")) + # Change legend title and legend labels
   scale_y_continuous(expand = c(0,0)) + # get rid of space between x-axis and plot
   theme_classic()
 
 csf_bar
 
 
+
 csf_bar2 <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "CSF Knowledge", y = "Proportion") +
+  scale_fill_discrete(name = "Customer Group",labels = c("Existing", "New")) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
 
@@ -99,22 +102,23 @@ necessary_bar
 necessary_delivery_df <- all_customers %>% 
   select(necessary_grocery, delivery_count) %>% 
   group_by(necessary_grocery, delivery_count) %>% 
-  summarize(necessary = length(necessary_grocery)) # number of people who said yes/sometimes/no based on the # of deliveries they have received
+  summarize(necessary = length(necessary_grocery)) %>% # number of people who said yes/sometimes/no based on the # of deliveries they have received
+  mutate(delivery_count = factor(delivery_count, levels = c("1-3", "4-6", "7-9","10 or more")))
 
 proportion_necessary_delivery <- necessary_delivery_df %>% 
   mutate(proportion = necessary/324) # Divide by total # of surveys
 
+tips2$day <- factor(tips2$day,levels = c("Fri", "Sat", "Sun", "Thur"))
+
 necessary_delivery_bar <- ggplot(proportion_necessary_delivery, aes (x = delivery_count, y = proportion, fill = necessary_grocery)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_y_continuous(expand = c(0,0)) +
+  labs(x = "Delivery Count", y = "Proportion") +
+  scale_fill_discrete(name = "Necessity") +
   theme_classic()
   
 
 necessary_delivery_bar
-
-
-
-
 
 ```
 
