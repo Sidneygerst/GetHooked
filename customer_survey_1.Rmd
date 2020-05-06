@@ -4,7 +4,11 @@ author: "Sidney Gerst, Corinna Hong"
 date: "April 29, 2020"
 output: html_document
 editor_options: 
+<<<<<<< HEAD
   chunk_output_type: console
+=======
+  chunk_output_type: inline
+>>>>>>> 264a22d4d5764a08e8d3dbe07b5413ef6e9a6108
 ---
 
 ```{r setup, include = FALSE}
@@ -13,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 
 library(tidyverse)
+library(paletteer)
+
 ```
 
 This markdown will combine the two customer surveys and compare existing customer answers with new customer answers. 
@@ -57,20 +63,23 @@ proportion_csf <- csf_known_df %>%
 csf_bar <- ggplot(proportion_csf, aes(x = id, y = proportion, fill = known_csf)) + 
   geom_bar(stat = "identity", position = "dodge") + # stat = "identity" to have bars represent values in the data. Otherwise default is counts in the column
   labs(x = "Group" , y = "Proportion") +
-  scale_x_discrete(labels = c("New", "Existing")) +
+  scale_x_discrete(labels = c("New", "Existing")) + # Change x-axis labels
+  scale_fill_discrete(name = "Customer Group", labels = c("Existing", "New")) + # Change legend title and legend labels
   scale_y_continuous(expand = c(0,0)) + # get rid of space between x-axis and plot
   theme_classic()
 
 csf_bar
 
 
+
 csf_bar2 <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "CSF Knowledge", y = "Proportion") +
+  scale_fill_discrete(name = "Customer Group",labels = c("Existing", "New")) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
 
-csf_bar2
+csf_bar2 # USE THIS ONE
 
 ```
 
@@ -89,6 +98,7 @@ proportion_necessary <- necessary_df %>%
 
 necessary_bar <- ggplot(proportion_necessary, aes(x = necessary_grocery, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_discrete(name = "Customer Group", labels = c("Existing", "New")) +
   labs(x = "Necessity", y = "Proportion") +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
@@ -101,20 +111,69 @@ necessary_bar
 necessary_delivery_df <- all_customers %>% 
   select(necessary_grocery, delivery_count) %>% 
   group_by(necessary_grocery, delivery_count) %>% 
-  summarize(necessary = length(necessary_grocery)) # number of people who said yes/sometimes/no based on the # of deliveries they have received
+  summarize(necessary = length(necessary_grocery)) %>% # number of people who said yes/sometimes/no based on the # of deliveries they have received
+  mutate(delivery_count = factor(delivery_count, levels = c("1-3", "4-6", "7-9","10 or more")))
 
 proportion_necessary_delivery <- necessary_delivery_df %>% 
   mutate(proportion = necessary/324) # Divide by total # of surveys
 
+
 necessary_delivery_bar <- ggplot(proportion_necessary_delivery, aes (x = delivery_count, y = proportion, fill = necessary_grocery)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_y_continuous(expand = c(0,0)) +
+  labs(x = "Delivery Count", y = "Proportion") +
+  scale_fill_discrete(name = "Necessity") +
+  scale_fill_manual(values = c("palevioletred", "khaki2","darkslategray4")) +
   theme_classic()
   
 
 necessary_delivery_bar
 
+```
 
+```{r}
+
+# Demographics
+demo_df <- all_customers %>% 
+  select(id, age, household_number,grocery_expenditure,income)
+
+
+
+# Age bargraph
+age_bar <- ggplot(demo_df, aes (x = age, fill = id)) + # fill to show new vs. exisitng
+  geom_bar() +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(x = "Age", y = "Count") +
+  theme_classic()
+
+age_bar
+
+
+
+# Age piechart
+age_pie_df <- demo_df %>% 
+  group_by(age) %>% 
+  summarize(count = length(age)) %>% 
+  mutate(proportion = count/324)
+
+age_pie <- ggplot(age_pie_df, aes(x = "", y = count, fill = age)) +
+  geom_bar(stat = "identity", width = 2, color = "white") +
+  coord_polar("y", start = 0) + # turn this bar graph into a pie chart!
+  theme_void() + # remove background, grid, and numberic labels
+  scale_fill_paletteer_d("grDevices::blues9")
+
+age_pie
+
+
+
+#necessary_delivery_df <- all_customers %>% 
+  #select(necessary_grocery, delivery_count) %>% 
+  #group_by(necessary_grocery, delivery_count) %>% 
+  #summarize(necessary = length(necessary_grocery)) %>% # number of people who said yes/sometimes/no based on the # of deliveries they have received
+  #mutate(delivery_count = factor(delivery_count, levels = c("1-3", "4-6", "7-9","10 or more")))
+
+#proportion_necessary_delivery <- necessary_delivery_df %>% 
+  #mutate(proportion = necessary/324) # Divide by total # of surveys
 
 
 
