@@ -56,26 +56,14 @@ proportion_csf <- csf_known_df %>%
   left_join(total_survey_counts, by = "id") %>% 
   mutate(proportion = count/total)
 
-csf_bar <- ggplot(proportion_csf, aes(x = id, y = proportion, fill = known_csf)) + 
-  geom_bar(stat = "identity", position = "dodge") + # stat = "identity" to have bars represent values in the data. Otherwise default is counts in the column
-  labs(x = "Group" , y = "Proportion") +
-  scale_x_discrete(labels = c("New", "Existing")) + # Change x-axis labels
-  scale_fill_discrete(name = "Customer Group", labels = c("Existing", "New")) + # Change legend title and legend labels
-  scale_y_continuous(expand = c(0,0)) + # get rid of space between x-axis and plot
-  theme_classic()
-
-csf_bar
-
-
-
-csf_bar2 <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
+csf_bar <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "CSF Knowledge", y = "Proportion") +
   scale_fill_discrete(name = "Customer Group",labels = c("Existing", "New")) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
 
-csf_bar2 # USE THIS ONE
+csf_bar # USE THIS ONE
 
 ```
 
@@ -118,8 +106,7 @@ necessary_delivery_bar <- ggplot(proportion_necessary_delivery, aes (x = deliver
   geom_bar(stat = "identity", position = "dodge") +
   scale_y_continuous(expand = c(0,0)) +
   labs(x = "Delivery Count", y = "Proportion") +
-  scale_fill_discrete(name = "Necessity") +
-  scale_fill_manual(values = c("palevioletred", "khaki2","darkslategray4")) +
+  scale_fill_manual(name = "Necessity", values = c("pink2", "grey89","darkslategray3")) + # change legend name and color
   theme_classic()
   
 
