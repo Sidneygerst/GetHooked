@@ -127,7 +127,10 @@ demo_df$household_number <- as.numeric(demo_df$household_number)
 
 summ_table <- demo_df %>% 
   summarize(mean_size = mean(household_number),
-            median_size = median(household_number))
+            median_size = median(household_number)) 
+
+median_income <- demo_df %>%
+  count("income")
 
 
 
@@ -153,11 +156,11 @@ age_pie_df <- demo_df %>%
   
 
 age_pie <- ggplot(age_pie_df, aes(x = "", y = total, fill = age)) +
-  geom_bar(stat = "identity", width = 2, color = "grey80") +
+  geom_bar(stat = "identity", width = 0.8, color = "white") +
   coord_polar("y", start = 0) + # turn this bar graph into a pie chart!
   theme_void() + # remove background, grid, and numberic labels
-  geom_text(aes(y = ypos, label = prop), color = "black", size = 4) +
-  scale_fill_paletteer_d("grDevices::blues9")
+  scale_fill_manual(name = "Age", values = c("gray80", "seagreen","lightsalmon2", "plum2", "lightgoldenrod1", "royalblue1")) 
+  #scale_fill_paletteer_d("grDevices::blues9")
 
 age_pie 
 
