@@ -121,11 +121,17 @@ necessary_delivery_bar
 # Demographics
 demo_df <- all_customers %>% 
   select(id, age, household_number,grocery_expenditure,income) %>%
-  filter(age != "Rather not say") # remove those who declined to state
+  filter(age != "Rather not say")  # remove those who declined to state
+ 
+demo_df$household_number <- as.numeric(demo_df$household_number)
+
+summ_table <- demo_df %>% 
+  summarize(mean_size = mean(household_number),
+            median_size = median(household_number))
 
 
 
-#Age Bar chart
+# Age Bar chart
 age_bar <- ggplot(demo_df, aes(x = age, fill = id))+
   geom_histogram(stat = "count") +
   scale_y_continuous(expand = c(0,0)) +
