@@ -4,11 +4,7 @@ author: "Sidney Gerst, Corinna Hong"
 date: "April 29, 2020"
 output: html_document
 editor_options: 
-<<<<<<< HEAD
   chunk_output_type: console
-=======
-  chunk_output_type: inline
->>>>>>> 264a22d4d5764a08e8d3dbe07b5413ef6e9a6108
 ---
 
 ```{r setup, include = FALSE}
@@ -63,7 +59,7 @@ proportion_csf <- csf_known_df %>%
 csf_bar <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "CSF Knowledge", y = "Proportion") +
-  scale_fill_discrete(name = "Customer Group",labels = c("Existing", "New")) +
+  scale_fill_manual(name = "Customer Group", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) + # change legend name, color, and labels
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
 
@@ -143,13 +139,18 @@ age_bar
 # Age pie chart
 age_pie_df <- demo_df %>% 
   group_by(age) %>% 
-  summarize(total = length(age)) %>% 
-  mutate(proportion = total/324)
+  summarize(total = length(age)) %>%
+  arrange(desc(age)) %>% # arragne table by descending ages so that labels are put in the right area
+  mutate(proportion = total/324) %>% # calculate proportions
+  mutate(prop = round(proportion*100, 2)) %>% # turn into percentage and round to 2 decimal points
+  mutate(ypos = cumsum(total) - 0.5*total) # position labels across y-axis
+  
 
 age_pie <- ggplot(age_pie_df, aes(x = "", y = total, fill = age)) +
   geom_bar(stat = "identity", width = 2, color = "grey80") +
   coord_polar("y", start = 0) + # turn this bar graph into a pie chart!
   theme_void() + # remove background, grid, and numberic labels
+  geom_text(aes(y = ypos, label = prop), color = "black", size = 4) +
   scale_fill_paletteer_d("grDevices::blues9")
 
 age_pie 
@@ -167,7 +168,7 @@ age_proportion_df <- demo_df %>%
 age_proportion_bar <- ggplot(age_proportion_df, aes(x = age, y = proportion, fill = id)) + 
   geom_bar(stat = "identity") +
   labs(x = "Age Range", y = "Proportion") +
-  scale_fill_discrete(name = "Customer Group",labels = c("Existing", "New")) +
+  scale_fill_manual(name = "Customer Group", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic()
 
