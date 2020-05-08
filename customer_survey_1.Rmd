@@ -149,18 +149,13 @@ age_bar
 age_pie_df <- demo_df %>% 
   group_by(age) %>% 
   summarize(total = length(age)) %>%
-  arrange(desc(age)) %>% # arragne table by descending ages so that labels are put in the right area
-  mutate(proportion = total/324) %>% # calculate proportions
-  mutate(prop = round(proportion*100, 2)) %>% # turn into percentage and round to 2 decimal points
-  mutate(ypos = cumsum(total) - 0.5*total) # position labels across y-axis
-  
+  mutate(proportion = total/324) # calculate proportions
 
 age_pie <- ggplot(age_pie_df, aes(x = "", y = total, fill = age)) +
   geom_bar(stat = "identity", width = 0.8, color = "white") +
   coord_polar("y", start = 0) + # turn this bar graph into a pie chart!
   theme_void() + # remove background, grid, and numberic labels
   scale_fill_manual(name = "Age", values = c("gray80", "seagreen","lightsalmon2", "plum2", "lightgoldenrod1", "royalblue1")) 
-  #scale_fill_paletteer_d("grDevices::blues9")
 
 age_pie 
 
