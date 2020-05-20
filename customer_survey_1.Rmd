@@ -129,9 +129,21 @@ summ_table <- demo_df %>%
   summarize(mean_size = mean(household_number),
             median_size = median(household_number)) 
 
-median_income <- demo_df %>%
-  count("income")
+income <- demo_df %>%
+  select(id, income) %>%
+  group_by(id, income) %>%
+  summarize(count_income = length(income)) %>%
+  mutate(prop_income = count_income/318)
 
+income_chart <- ggplot(income, aes(x = income, y = prop_income, fill = id))+
+  geom_bar(stat = "identity") +
+  theme_classic()+
+  scale_fill_manual(name = "Customer Group", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  scale_y_continuous(expand = c(0,0))+
+  labs(x = "Income Range", y = "Proportion") +
+  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say"))
+
+income_chart
 
 
 # Age Bar chart
@@ -166,7 +178,7 @@ age_proportion_df <- demo_df %>%
   group_by(age, id) %>% 
   summarize(count = length(age)) %>% 
   left_join(age_pie_df, by = "age") %>% 
-  mutate(proportion = count/total) %>% 
+  mutate(proportion = count/324) %>% 
   filter(age != "Rather not say") # remove those who declined to state
 
 age_proportion_bar <- ggplot(age_proportion_df, aes(x = age, y = proportion, fill = id)) + 
@@ -180,3 +192,209 @@ age_proportion_bar
 
 ```
 
+**New vs Old customers**
+
+```{r}
+#visualize count
+customer_count <- ggplot(all_customers, aes(x = id, fill = id))+
+  geom_bar(stat = "count")+
+  theme_classic()+
+  scale_fill_manual(name = "Customer Group", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  theme(legend.position = "none")+
+  scale_y_continuous(expand = c(0,0)) 
+
+customer_count
+
+#get proportion
+customer_prop <- all_customers %>%
+  select(id) %>%
+  group_by(id) %>%
+  summarize(count = length(id)) %>%
+  mutate(prop = count/324)
+  
+
+#visualize prop
+customer_prop_chart <- ggplot(customer_prop, aes(x = id, y = prop, fill = id)) +
+  geom_bar(stat = "identity") +
+  theme_classic()+
+  scale_fill_manual(values = c("royalblue1", "seagreen"))+
+  theme(legend.position = "none")+
+  scale_y_continuous(expand = c(0,0))+
+  labs(x = "Customer Group", y = "Proportion")+
+  scale_x_discrete(breaks = c("existing", "new"), labels = c("Existing", "New"))
+
+
+```
+
+
+
+**Start looking at differences in what customers want grocery-wise**
+
+```{r}
+
+#Do you considered Get Hooked a core/necessary part of your weekly grocery supply?
+
+grocery <- all_customers %>%
+  select(id, necessary_grocery, grocery_influence, grocery_budget, grocery_expenditure, income)
+
+#lets just look at all of it
+necessary_grocery <- ggplot(grocery, aes(x = necessary_grocery, fill = id))+
+  geom_bar(stat = "count")+
+  facet_wrap(~id)+
+  theme_classic()+
+  scale_fill_manual(name = "Necessity", values = c("royalblue1", "seagreen","lightsalmon2")) +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(x = "Grocery Necessity", y = "count")
+  
+necessary_grocery
+
+
+#grocery influence
+# Explore necessity broken down by influence counts
+necessary_influence_df <- grocery %>% 
+  select(id, necessary_grocery, grocery_influence) %>% 
+  group_by(id, necessary_grocery, grocery_influence) %>% 
+  summarize(necessary = length(necessary_grocery))
+
+proportion_necessary_influence <- necessary_influence_df %>% 
+  mutate(proportion = necessary/324) # Divide by total # of surveys
+
+
+#How have recent changes to grocery access influenced your decision to join or continue with Get Hooked?
+influence_grocery <- ggplot(proportion_necessary_influence, aes(x = necessary_grocery, y = proportion, fill = id))+
+  geom_bar(stat = "identity")+
+  facet_wrap(~grocery_influence)+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle=15))+
+  scale_fill_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(x = "Grocery Necessity", y = "Propotion")
+  
+influence_grocery
+
+
+
+
+
+  
+
+```
+
+**Stay after Covid**
+
+```{r}
+
+#When the COVID-19 pandemic has passed, how likely are you to continue your Get Hooked membership?
+
+covid_count_chart <- ggplot(all_customers, aes(x = covid_end, fill = id))+
+  geom_bar(stat = "count")+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle=11))+
+  scale_fill_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(x = "How likely to continue Get Hooked", y = "Count")
+
+covid_count_chart
+
+#look at the proportions
+covid_propotion <- all_customers %>%
+  select(id, covid_end) %>%
+  group_by(id, covid_end) %>%
+  summarize(covid_count = length(covid_end)) %>%
+  mutate(proportion = covid_count/324)
+
+covid_proportion_chart <- ggplot(covid_propotion, aes(x = covid_end, y = proportion, fill = id))+
+  geom_bar(stat = "identity")+
+  theme_classic()+
+  #theme(axis.text.x = element_text(angle=11))+
+  scale_fill_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(x = "How likely to continue Get Hooked", y = "Proportion")
+
+covid_proportion_chart
+
+
+```
+
+
+
+**Fair Price**
+
+```{r}
+#Do you feel you pay a fair price for your seafood subscription?
+
+#counts
+fair_price_count <- ggplot(all_customers, aes(x = fair_price, fill = id))+
+  geom_bar(stat = "count", position = "dodge")+
+  theme_classic()+
+  scale_fill_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  scale_y_continuous(expand = c(0,0)) +
+  theme(axis.text.x = element_text(angle=10.5))+
+  labs(x = "Do you feel you pay a fair price for seafood?", y = "Count")
+
+fair_price_count
+
+#look at the proportions
+fair_propotion <- all_customers %>%
+  select(id, fair_price) %>%
+  group_by(id, fair_price) %>%
+  summarize(fair_count = length(fair_price)) %>%
+  mutate(proportion = fair_count/324)
+
+#LOOK AT IT
+fair_price_propotion <- ggplot(fair_propotion, aes(x = fair_price, y = proportion, fill = id))+
+  geom_bar(stat = "identity", position = "dodge")+
+  theme_classic()+
+  scale_fill_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  scale_y_continuous(expand = c(0,0)) +
+  #theme(axis.text.x = element_text(angle=10))+
+  labs(x = "Do you feel you pay a fair price for seafood?", y = "Proportion")
+
+fair_price_propotion
+
+
+
+```
+
+**Going to compare how likely people will continue with income and age**
+
+```{r}
+
+
+income_age <- all_customers %>%
+  select(id, age, income, covid_end, grocery_influence) 
+
+
+age_income_jitter <- ggplot(income_age, aes(x = age, y = income, color = covid_end))+
+  geom_jitter(position = position_jitter(width = 0.1, height = 0.2)) +
+  scale_y_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say")) +
+  scale_color_manual(name = "Likelihood", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely")) +
+  labs(x = "Age", y = "Income")
+
+
+age_income_jitter
+
+age_covid_jitter<- ggplot(income_age, aes(x = covid_end, y = age, color = covid_end))+
+  geom_jitter(position = position_jitter(width = 0.1, height = 0.2)) +
+  #scale_y_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say")) +
+  scale_color_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  labs(y = "Age", x = "Likelihood to continue")
+
+age_covid_jitter
+
+
+income_covid_jitter <- ggplot(income_age, aes(x = covid_end, y = income, color = id))+
+  geom_jitter(position = position_jitter(width = 0.1, height = 0.2)) +
+  scale_y_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say")) +
+  scale_color_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
+  labs(y = "Income", x = "Likelihood to continue")
+
+income_covid_jitter
+
+
+#regression?
+
+
+```
+
+Here is Allison's lab with multivariate regressions: https://github.com/allisonhorst/esm-206-labs-fall-2018/blob/master/lab_9/lab_9_key.Rmd
