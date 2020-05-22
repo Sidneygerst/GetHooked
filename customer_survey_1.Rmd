@@ -366,7 +366,7 @@ income_age <- all_customers %>%
 
 
 age_income_jitter <- ggplot(income_age, aes(x = age, y = income, color = covid_end))+
-  geom_jitter(position = position_jitter(width = 0.1, height = 0.2), alpha = 0.5) +
+  geom_jitter(position = position_jitter(width = 0.1, height = 0.2), alpha = 0.8) +
   scale_y_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say")) +
   scale_color_manual(name = "Likelihood", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely")) +
   labs(x = "Age", y = "Income") +
