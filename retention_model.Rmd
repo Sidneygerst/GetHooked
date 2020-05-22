@@ -1,0 +1,89 @@
+---
+title: "retention_model"
+author: "Corinna Hong"
+date: "May 22, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+
+library(tidyverse)
+library(MASS)
+
+```
+
+```{r}
+
+#load in the customer data
+new_customers <- read_csv("new_customer_survey1.csv")
+old_customers <- read_csv("existing_customer_survey1.csv")
+
+#add new identifer column to both dataframes before combining
+new_customer_id <- new_customers %>%
+  mutate(id = "new")
+
+old_customer_id <- old_customers %>%
+  mutate(id = "existing") %>%
+  select(-X46)
+
+#combine the dfs
+all_customers <- bind_rows(new_customer_id, old_customer_id) %>%
+  select(-feedback, -name) #get rid of columns w NAs (feedback and names), we don't care
+
+#Create a subset only for columns in model
+customer_subset <- all_customers %>% 
+  select(covid_end, delivery_count, necessary_grocery, age, income, id) %>%
+  filter(income != "Rather not say")
+
+```
+
+
+### Market analysis to determine which variables influence the decision to continue, maybe continue, or not continue with Get Hooked subscription post COVID-19 SIP
+
+
+*Ordinal logistic regression to predict the probability of staying with Get Hooked after COVID-19 based on delivery count, age, necessity, income, id
+
+```{r}
+
+#Set-Up
+
+#Ordering the dependent variable
+customer_subset$covid_end = factor(customer_subset$covid_end, levels = c("Unlikely to continue", "Not sure", "Likely to continue"), ordered = TRUE) 
+
+#Ordering the independent variables
+customer_subset$age = factor(customer_subset$age, levels = c("18-24", "25-34", "35-44", "45-54", "55-64", "65+"), ordered = TRUE)
+customer_subset$delivery_count = factor(customer_subset$delivery_count, levels = c("1-3", "4-6", "7-9", "10 or more"), ordered = TRUE)
+customer_subset$necessary_grocery = factor(customer_subset$necessary_grocery, levels = c("No, it is extra", "Sometimes", "Yes"), ordered = TRUE)
+customer_subset$income = factor(customer_subset$income, levels = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K","Over $250K"), ordered = TRUE)
+
+```
+
+```{r}
+
+#Data Exploration
+
+
+#Summarizing the data
+summary(customer_subset)
+
+#Making frequency table
+table(customer_subset$covid_end, customer_subset$delivery_count) # more deliveries more likely to continue
+table(customer_subset$covid_end, customer_subset$age) # likely to continue peaks at 25-45 age range
+table(customer_subset$covid_end, customer_subset$necessary_grocery) # seen as a ncessity, more likley to continue
+table(customer_subset$covid_end, customer_subset$income) # likely to continue peaks at $101-150K  
+table(customer_subset$covid_end, customer_subset$id) # existing customers more likely to continue, new customers are more unsure
+
+```
+
+
+```{r}
+
+#Build the model!
+model = polr(covid_end ~ delivery_count + age + necessary_grocery + income + id , data = customer_subset)
+summary(model)
+
+```
+
