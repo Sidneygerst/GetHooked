@@ -89,8 +89,28 @@ summary(model)
 
 
 #plot the model
-plot(Effect(focal.predictors = c("necessary_grocery", "delivery_count"), model), main = "Effect Plot", 
+plot(Effect(focal.predictors = c("delivery_count", "necessary_grocery"), model), main = "Effect Plot", 
      axes = list(x = list(lab = "Delivery Count")))
+
+plot(Effect(focal.predictors = c("age", "income"), model), main = "Effect Plot", 
+     axes = list(x = list(lab = "Delivery Count")))
+
+e_grocery_delivery <- Effect(focal.predictors = c("necessary_grocery", "delivery_count", "age"), model)
+e_grocery_delivery <- as.data.frame(e_grocery_delivery)
+
+e_grocery_delivery_plot <- ggplot() +
+  geom_line(e_grocery_delivery, mapping = aes(x = necessary_grocery, y = prob.Unlikely.to.continue, group = 1, color = "blue"), lwd=1.4) +
+  geom_point(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Unlikely.to.continue)) +
+  geom_line(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Not.sure, group = 1, color = "red"), lwd=1.4) +
+  geom_point(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Not.sure)) +
+  geom_line(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Likely.to.continue, group = 1, color = "green"), lwd=1.4) +
+  geom_point(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Likely.to.continue)) +
+  scale_color_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Unlikely", "Likely", "Not Sure"))+
+  facet_wrap(~delivery_count) +
+  theme_classic() +
+  labs(x = "Is Get Hooked a Necessary Part of your Groceries", y = "Probability of Continuing with Get Hooked")
+
+e_grocery_delivery_plot
 
 #plot using ggplot
 #income plot
