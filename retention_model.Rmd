@@ -3,6 +3,8 @@ title: "retention_model"
 author: "Corinna Hong"
 date: "May 22, 2020"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 library(tidyverse)
 library(MASS)
-
+library(effects)
 ```
 
 ```{r}
@@ -27,15 +29,15 @@ new_customer_id <- new_customers %>%
 
 old_customer_id <- old_customers %>%
   mutate(id = "existing") %>%
-  select(-X46)
+  dplyr::select(-X46)
 
 #combine the dfs
 all_customers <- bind_rows(new_customer_id, old_customer_id) %>%
-  select(-feedback, -name) #get rid of columns w NAs (feedback and names), we don't care
+  dplyr::select(-feedback, -name) #get rid of columns w NAs (feedback and names), we don't care
 
 #Create a subset only for columns in model
 customer_subset <- all_customers %>% 
-  select(covid_end, delivery_count, necessary_grocery, age, income, id) %>%
+  dplyr::select(covid_end, delivery_count, necessary_grocery, age, income, id) %>%
   filter(income != "Rather not say")
 
 ```
@@ -84,6 +86,82 @@ table(customer_subset$covid_end, customer_subset$id) # existing customers more l
 #Build the model!
 model = polr(covid_end ~ delivery_count + age + necessary_grocery + income + id , data = customer_subset)
 summary(model)
+
+
+#plot the model
+plot(Effect(focal.predictors = c("necessary_grocery", "delivery_count"), model), main = "Effect Plot", 
+     axes = list(x = list(lab = "Delivery Count")))
+
+#plot using ggplot
+#income plot
+e_income <- Effect(focal.predictors = "income", model )
+e_income <- as.data.frame(e_income)
+
+e_income_plot <- ggplot() +
+  geom_line(e_income, mapping = aes(x = income, y = prob.Unlikely.to.continue, group = 1, color = "blue"), lwd=1.4) +
+  geom_point(e_income, mapping = aes(x = income, y = prob.Unlikely.to.continue)) +
+  geom_line(e_income, mapping = aes(x = income, y = prob.Not.sure, group = 1, color = "red"), lwd=1.4) +
+  geom_point(e_income, mapping = aes(x = income, y = prob.Not.sure)) +
+  geom_line(e_income, mapping = aes(x = income, y = prob.Likely.to.continue, group = 1, color = "green"), lwd=1.4) +
+  geom_point(e_income, mapping = aes(x = income, y = prob.Likely.to.continue)) +
+  scale_color_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Unlikely", "Likely", "Not Sure"))+
+  theme_classic() +
+  labs(x = "Income", y = "Probability of Continuing with Get Hooked")
+
+e_income_plot
+
+#age plot
+e_age <- Effect(focal.predictors = "age", model)
+e_age <- as.data.frame(e_age)
+
+e_age_plot <- ggplot() +
+  geom_line(e_age, mapping = aes(x = age, y = prob.Unlikely.to.continue, group = 1, color = "blue"), lwd=1.4) +
+  geom_point(e_age, mapping = aes(x = age, y = prob.Unlikely.to.continue)) +
+  geom_line(e_age, mapping = aes(x = age, y = prob.Not.sure, group = 1, color = "red"), lwd=1.4) +
+  geom_point(e_age, mapping = aes(x = age, y = prob.Not.sure)) +
+  geom_line(e_age, mapping = aes(x = age, y = prob.Likely.to.continue, group = 1, color = "green"), lwd=1.4) +
+  geom_point(e_age, mapping = aes(x = age, y = prob.Likely.to.continue)) +
+  scale_color_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Unlikely", "Likely", "Not Sure"))+
+  theme_classic() +
+  labs(x = "Age", y = "Probability of Continuing with Get Hooked")
+
+e_age_plot
+
+
+#delivery plot
+e_delivery <- Effect(focal.predictors = "delivery_count", model)
+e_delivery <- as.data.frame(e_delivery)
+
+e_delivery_plot <- ggplot() +
+  geom_line(e_delivery, mapping = aes(x = delivery_count, y = prob.Unlikely.to.continue, group = 1, color = "blue"), lwd=1.4) +
+  geom_point(e_delivery, mapping = aes(x = delivery_count, y = prob.Unlikely.to.continue)) +
+  geom_line(e_delivery, mapping = aes(x = delivery_count, y = prob.Not.sure, group = 1, color = "red"), lwd=1.4) +
+  geom_point(e_delivery, mapping = aes(x = delivery_count, y = prob.Not.sure)) +
+  geom_line(e_delivery, mapping = aes(x = delivery_count, y = prob.Likely.to.continue, group = 1, color = "green"), lwd=1.4) +
+  geom_point(e_delivery, mapping = aes(x = delivery_count, y = prob.Likely.to.continue)) +
+  scale_color_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Unlikely", "Likely", "Not Sure"))+
+  theme_classic() +
+  labs(x = "Delivery Count", y = "Probability of Continuing with Get Hooked")
+
+e_delivery_plot
+
+
+#necessary grocery
+e_grocery <- Effect(focal.predictors = "necessary_grocery", model)
+e_grocery <- as.data.frame(e_grocery)
+
+e_grocery_plot <- ggplot() +
+  geom_line(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Unlikely.to.continue, group = 1, color = "blue"), lwd=1.4) +
+  geom_point(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Unlikely.to.continue)) +
+  geom_line(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Not.sure, group = 1, color = "red"), lwd=1.4) +
+  geom_point(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Not.sure)) +
+  geom_line(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Likely.to.continue, group = 1, color = "green"), lwd=1.4) +
+  geom_point(e_grocery, mapping = aes(x = necessary_grocery, y = prob.Likely.to.continue)) +
+  scale_color_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Unlikely", "Likely", "Not Sure"))+
+  theme_classic() +
+  labs(x = "Is Get Hooked a Necessary Part of your Groceries", y = "Probability of Continuing with Get Hooked")
+
+e_grocery_plot
 
 ```
 
