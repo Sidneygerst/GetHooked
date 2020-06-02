@@ -185,3 +185,42 @@ e_grocery_plot
 
 ```
 
+```{r}
+
+#Plot the model II - plots for presentation
+
+
+#Grocery necessity
+e_grocery_subset <-e_grocery %>% 
+  dplyr::select(necessary_grocery:prob.Likely.to.continue) %>%
+  gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
+
+e_grocery_bar <- ggplot(e_grocery_subset, aes(fill = continue, x = necessary_grocery, y = probability)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_manual(values=c("royalblue1", "seagreen", "lightsalmon2", "royalblue1", "seagreen", "lightsalmon2", "royalblue1", "seagreen", "lightsalmon2")) +
+  labs(x = "Grocery Necessity Perception", y = "Probability of Continuing with Get Hooked") +
+  scale_y_continuous(expand = c(0,0)) +  
+  scale_fill_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely"))+
+  theme_classic()
+
+e_grocery_bar
+
+
+#Income
+e_income_subset <- e_income %>%
+  dplyr::select(income:prob.Likely.to.continue) %>% 
+  gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
+  
+e_income_bar <- ggplot(e_income_subset, aes(fill = continue, x = income, y = probability)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_manual(values=c("royalblue1", "seagreen", "lightsalmon2", "royalblue1", "seagreen", "lightsalmon2", "royalblue1", "seagreen", "lightsalmon2")) +
+  labs(x = "Income", y = "Probability of Continuing with Get Hooked") +
+  scale_y_continuous(expand = c(0,0)) +  
+  scale_fill_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely"))+
+  theme_classic()
+
+e_income_bar
+
+
+```
+
