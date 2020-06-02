@@ -145,6 +145,15 @@ income_chart <- ggplot(income, aes(x = income, y = prop_income, fill = id))+
 
 income_chart
 
+income_chart_ppt <- ggplot(income, aes(x = income, y = prop_income))+
+  geom_bar(stat = "identity", fill = "royalblue1") +
+  theme_classic()+
+  scale_y_continuous(expand = c(0,0))+
+  labs(x = "Income Range", y = "Proportion") +
+  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say"))
+
+income_chart_ppt
+
 
 # Age Bar chart
 age_bar <- ggplot(demo_df, aes(x = age, fill = id))+
