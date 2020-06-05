@@ -54,7 +54,7 @@ csf_known_df <- all_customers %>%
 
 proportion_csf <- csf_known_df %>% 
   left_join(total_survey_counts, by = "id") %>% 
-  mutate(proportion = count/total)
+  mutate(proportion = count/324)
 
 csf_bar <- ggplot(proportion_csf, aes(x = known_csf, y = proportion, fill = id)) + 
   geom_bar(stat = "identity", position = "dodge") +
@@ -77,7 +77,7 @@ necessary_df <- all_customers %>%
 
 proportion_necessary <- necessary_df %>% 
   left_join(total_survey_counts, by = "id") %>% 
-  mutate(proportion = count/total)
+  mutate(proportion = count/324)
 
 
 necessary_bar <- ggplot(proportion_necessary, aes(x = necessary_grocery, y = proportion, fill = id)) + 
