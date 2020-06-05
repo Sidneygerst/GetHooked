@@ -37,7 +37,7 @@ all_customers <- bind_rows(new_customer_id, old_customer_id) %>%
 
 #Create a subset only for columns in model
 customer_subset <- all_customers %>% 
-  dplyr::select(covid_end, delivery_count, necessary_grocery, age, income, id) %>%
+  dplyr::select(covid_end, delivery_count, necessary_grocery, age, income, fair_price, id) %>%
   filter(income != "Rather not say")
 
 ```
@@ -60,6 +60,7 @@ customer_subset$age = factor(customer_subset$age, levels = c("18-24", "25-34", "
 customer_subset$delivery_count = factor(customer_subset$delivery_count, levels = c("1-3", "4-6", "7-9", "10 or more"), ordered = TRUE)
 customer_subset$necessary_grocery = factor(customer_subset$necessary_grocery, levels = c("No, it is extra", "Sometimes", "Yes"), ordered = TRUE)
 customer_subset$income = factor(customer_subset$income, levels = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K","Over $250K"), ordered = TRUE)
+customer_subset$fair_price = factor(customer_subset$fair_price, levels = c("It's overpriced", "It's a little overpriced", "Yes, it's fair", "It's worth more"), ordered = TRUE)
 
 ```
 
@@ -77,6 +78,7 @@ table(customer_subset$covid_end, customer_subset$age) # likely to continue peaks
 table(customer_subset$covid_end, customer_subset$necessary_grocery) # seen as a ncessity, more likley to continue
 table(customer_subset$covid_end, customer_subset$income) # likely to continue peaks at $101-150K  
 table(customer_subset$covid_end, customer_subset$id) # existing customers more likely to continue, new customers are more unsure
+table(customer_subset$covid_end, customer_subset$fair_price)
 
 ```
 
@@ -84,7 +86,7 @@ table(customer_subset$covid_end, customer_subset$id) # existing customers more l
 ```{r}
 
 #Build the model!
-model = polr(covid_end ~ delivery_count + age + necessary_grocery + income + id , data = customer_subset)
+model = polr(covid_end ~ delivery_count + age + necessary_grocery + income + id + fair_price, data = customer_subset)
 summary(model)
 
 
@@ -190,7 +192,7 @@ e_grocery_plot
 #Plot the model II - plots for presentation
 
 
-#Grocery necessity
+#Grocery necessity bar graph
 e_grocery_subset <-e_grocery %>% 
   dplyr::select(necessary_grocery:prob.Likely.to.continue) %>%
   gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
@@ -206,7 +208,7 @@ e_grocery_bar <- ggplot(e_grocery_subset, aes(fill = continue, x = necessary_gro
 e_grocery_bar
 
 
-#Income
+#Income bar graph
 e_income_subset <- e_income %>%
   dplyr::select(income:prob.Likely.to.continue) %>% 
   gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
@@ -216,10 +218,62 @@ e_income_bar <- ggplot(e_income_subset, aes(fill = continue, x = income, y = pro
   scale_fill_manual(values=c("royalblue1", "seagreen", "lightsalmon2", "royalblue1", "seagreen", "lightsalmon2", "royalblue1", "seagreen", "lightsalmon2")) +
   labs(x = "Income", y = "Probability of Continuing with Get Hooked") +
   scale_y_continuous(expand = c(0,0)) +  
+  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K")) +
   scale_fill_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely"))+
   theme_classic()
 
 e_income_bar
+
+
+#Delivery Bar Graph
+e_delivery_subset <- e_delivery %>%
+  dplyr::select(delivery_count:prob.Likely.to.continue) %>%
+  gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
+
+e_delivery_bar <- ggplot(e_delivery_subset, aes(fill =continue, x = delivery_count, y = probability )) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely"))+
+  theme_classic() +
+  scale_x_discrete(limits = c("1-3", "4-6", "7-9","10 or more")) +
+  scale_y_continuous(expand = c(0,0)) + 
+  labs(x = "Delivery Count", y = "Probability of Continuing with Get Hooked")
+
+e_delivery_bar
+
+
+
+#Age Bar Graph
+e_age_subset <- e_age %>%
+  dplyr::select(age:prob.Likely.to.continue) %>%
+  gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
+
+e_age_bar <- ggplot(e_age_subset, aes(fill = continue, x = age, y = probability)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely"))+
+  theme_classic() +
+  scale_y_continuous(expand = c(0,0)) + 
+  labs(x = "Age", y = "Probability of Continuing with Get Hooked")
+
+e_age_bar
+
+#fair price bar graph
+e_fair <- Effect(focal.predictors = "fair_price", model )
+e_fair <- as.data.frame(e_fair)
+
+e_fair_subset <- e_fair %>%
+  dplyr::select(fair_price:prob.Likely.to.continue) %>%
+  gather(`prob.Unlikely.to.continue`, `prob.Not.sure`, `prob.Likely.to.continue`, key = "continue", value = "probability")
+
+e_fair_bar <- ggplot(e_fair_subset, aes(fill = continue, x = fair_price, y = probability))+
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_manual(name = "Likelihood to Continue", values = c("royalblue1", "seagreen", "lightsalmon2"), labels = c("Likely", "Not Sure", "Unlikely"))+
+  theme_classic() +
+  scale_y_continuous(expand = c(0,0)) + 
+  labs(x = "Fair Price", y = "Probability of Continuing with Get Hooked")
+
+e_fair_bar
+
+
 
 
 ```

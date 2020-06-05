@@ -129,11 +129,12 @@ summ_table <- demo_df %>%
   summarize(mean_size = mean(household_number),
             median_size = median(household_number)) 
 
-income <- demo_df %>%
+income <- all_customers %>%
   select(id, income) %>%
   group_by(id, income) %>%
   summarize(count_income = length(income)) %>%
-  mutate(prop_income = count_income/318)
+  mutate(prop_income = count_income/324) %>%
+  filter(income != "Rather not say")
 
 income_chart <- ggplot(income, aes(x = income, y = prop_income, fill = id))+
   geom_bar(stat = "identity") +
@@ -141,7 +142,7 @@ income_chart <- ggplot(income, aes(x = income, y = prop_income, fill = id))+
   scale_fill_manual(name = "Customer Group", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
   scale_y_continuous(expand = c(0,0))+
   labs(x = "Income Range", y = "Proportion") +
-  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say"))
+  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K"))
 
 income_chart
 
@@ -150,7 +151,7 @@ income_chart_ppt <- ggplot(income, aes(x = income, y = prop_income))+
   theme_classic()+
   scale_y_continuous(expand = c(0,0))+
   labs(x = "Income Range", y = "Proportion") +
-  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K", "Rather not say"))
+  scale_x_discrete(limits = c("< $50K", "$50 - $100K", "$101 - $150K", "$151 - $200K", "$201 - $250K", "Over $250K"))
 
 income_chart_ppt
 
@@ -356,6 +357,7 @@ fair_price_propotion <- ggplot(fair_propotion, aes(x = fair_price, y = proportio
   theme_classic()+
   scale_fill_manual(name = "Customer ID", values = c("royalblue1", "seagreen"), labels = c("Existing", "New")) +
   scale_y_continuous(expand = c(0,0)) +
+  scale_x_discrete(limits = c("It's overpriced", "It's a little overpriced", "Yes, it's fair", "It's worth more")) +
   #theme(axis.text.x = element_text(angle=10))+
   labs(x = "Do you feel you pay a fair price for seafood?", y = "Proportion")
 
