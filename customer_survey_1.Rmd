@@ -233,6 +233,8 @@ customer_prop_chart <- ggplot(customer_prop, aes(x = id, y = prop, fill = id)) +
   labs(x = "Customer Group", y = "Proportion")+
   scale_x_discrete(breaks = c("existing", "new"), labels = c("Existing", "New"))
 
+customer_prop_chart
+
 
 ```
 
